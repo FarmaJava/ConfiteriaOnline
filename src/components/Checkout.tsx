@@ -142,6 +142,7 @@ function Checkout({ items, onBack, onComplete }: CheckoutProps) {
                 </h2>
               </div>
 
+              <form onSubmit={handleFinalSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Dirección completa de entrega
@@ -157,7 +158,6 @@ function Checkout({ items, onBack, onComplete }: CheckoutProps) {
                   />
                 </div>
 
-                              <form onSubmit={handleFinalSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Codigo Postal

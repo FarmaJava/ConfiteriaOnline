@@ -276,7 +276,9 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-
+  const [afterLoginView, setAfterLoginView] = useState<'checkout' | null>(null);
+  const [authMessage, setAuthMessage] = useState('');
+  const [loginFromCart, setLoginFromCart] = React.useState(false);
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setCurrentView('product');
@@ -335,12 +337,19 @@ function App() {
       {currentView === 'home' && (
         <>
           <Hero />
-          <ProductGrid 
-            products={filteredProducts}
-            onProductClick={handleProductClick}
+            <ProductGrid 
+              products={products.filter(product => {
+              const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+              const matchesCategory = !selectedCategory || product.category === selectedCategory;
+              return matchesSearch && matchesCategory;
+            })}
+            onProductClick={(product) => {
+              setSelectedProduct(product);        // ✅ guarda el producto
+              setCurrentView('product');          // ✅ cambia a la vista detalle
+            }}
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
-          />
+            />
         </>
       )}
 
@@ -356,9 +365,16 @@ function App() {
         <Cart
           items={cartItems}
           onUpdateQuantity={handleUpdateCartQuantity}
-          onCheckout={() => setCurrentView('checkout')}
+          onCheckout={() => {
+            if (!user) {
+              setAuthMessage('Debes iniciar sesión para continuar con la compra');
+              setCurrentView('auth'); // te manda al login si no estás logueado
+            } else {
+              setCurrentView('checkout'); // sigue normalmente si estás logueado
+            }
+          }}
           onBack={() => setCurrentView('home')}
-        />
+          />
       )}
 
       {currentView === 'auth' && (
@@ -368,6 +384,7 @@ function App() {
           onLogout={() => setUser(null)}
           onBack={() => setCurrentView('home')}
           onAdminAccess={() => setCurrentView('admin')}
+          message={authMessage}
         />
       )}
 

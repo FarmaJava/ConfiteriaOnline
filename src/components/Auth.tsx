@@ -5,9 +5,10 @@ import { useUser } from '../context/UserContext';
 interface AuthProps {
   onBack: () => void;
   onAdminAccess: () => void;
+  message?: string; // <-- nuevo
 }
 
-function Auth({ onBack, onAdminAccess }: AuthProps) {
+function Auth({ onBack, onAdminAccess, message }: AuthProps) {
   const { user, login, logout } = useUser();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,16 @@ function Auth({ onBack, onAdminAccess }: AuthProps) {
     email: '',
     password: '',
     confirmPassword: ''
+  });
+
+  // 🔴 VERIFICAMOS SI VIENE DEL CARRITO
+  const [cameFromCart] = useState(() => {
+    const flag = sessionStorage.getItem('cameFromCart');
+    if (flag) {
+      sessionStorage.removeItem('cameFromCart');
+      return true;
+    }
+    return false;
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,6 +50,7 @@ function Auth({ onBack, onAdminAccess }: AuthProps) {
 
   if (user) {
     return (
+      
       <div className="max-w-md mx-auto px-4 py-8">
         <button
           onClick={onBack}
@@ -105,6 +117,12 @@ function Auth({ onBack, onAdminAccess }: AuthProps) {
             {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
           </h2>
         </div>
+
+        {message && (
+        <div className="mb-4 text-center text-sm font-medium text-red-500">
+        {message}
+        </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (

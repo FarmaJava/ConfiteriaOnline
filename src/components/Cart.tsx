@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft, Plus, Minus, Trash2 } from 'lucide-react';
 import { CartItem } from '../types';
+import { useUser } from '../context/UserContext';
 
 interface CartProps {
   items: CartItem[];
@@ -10,7 +11,13 @@ interface CartProps {
 }
 
 function Cart({ items, onUpdateQuantity, onCheckout, onBack }: CartProps) {
+  const { user } = useUser();
+
   const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+
+  const handleCheckout = () => {
+    onCheckout(); // delega la lógica al componente App
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -42,12 +49,12 @@ function Cart({ items, onUpdateQuantity, onCheckout, onBack }: CartProps) {
                     alt={item.product.name}
                     className="w-16 h-16 object-cover rounded-lg"
                   />
-                  
+
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800">{item.product.name}</h3>
                     <p className="text-sm text-gray-500">{item.product.category}</p>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
@@ -65,13 +72,13 @@ function Cart({ items, onUpdateQuantity, onCheckout, onBack }: CartProps) {
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
-                  
+
                   <div className="text-right min-w-[80px]">
                     <p className="font-bold" style={{ color: '#EB9898' }}>
                       ${item.product.price * item.quantity}
                     </p>
                   </div>
-                  
+
                   <button
                     onClick={() => onUpdateQuantity(item.product.id, 0)}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -87,9 +94,9 @@ function Cart({ items, onUpdateQuantity, onCheckout, onBack }: CartProps) {
                 <span className="text-lg font-semibold">Total Carrito</span>
                 <span className="text-2xl font-bold" style={{ color: '#EB9898' }}>${total}</span>
               </div>
-              
+
               <button
-                onClick={onCheckout}
+                onClick={handleCheckout}
                 className="w-full text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
                 style={{ backgroundColor: '#EB9898' }}
               >
