@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { User } from '../types';
+import { useUser } from '../context/UserContext';
 
 interface AuthProps {
-  user: User | null;
-  onLogin: (user: User) => void;
-  onLogout: () => void;
   onBack: () => void;
   onAdminAccess: () => void;
 }
 
-function Auth({ user, onLogin, onLogout, onBack, onAdminAccess }: AuthProps) {
+function Auth({ onBack, onAdminAccess }: AuthProps) {
+  const { user, login, logout } = useUser();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,24 +20,14 @@ function Auth({ user, onLogin, onLogout, onBack, onAdminAccess }: AuthProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (isLogin) {
-      // Simulación de login
-      const isAdmin = formData.email === 'admin@candycrushers.com';
-      onLogin({
-        id: 1,
-        name: isAdmin ? 'Administrador' : formData.name || 'Usuario',
-        email: formData.email,
-        isAdmin
-      });
-    } else {
-      // Simulación de registro
-      onLogin({
-        id: 1,
-        name: formData.name,
-        email: formData.email
-      });
-    }
+    const isAdmin = formData.email === 'admin@candycrushers.com';
+
+    login({
+      id: 1,
+      name: isAdmin ? 'Administrador' : formData.name || 'Usuario',
+      email: formData.email,
+      isAdmin
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +77,7 @@ function Auth({ user, onLogin, onLogout, onBack, onAdminAccess }: AuthProps) {
             )}
             
             <button
-              onClick={onLogout}
+              onClick={logout}
               className="w-full bg-gray-200 text-gray-800 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-all duration-300"
             >
               Cerrar Sesión
@@ -121,48 +109,39 @@ function Auth({ user, onLogin, onLogout, onBack, onAdminAccess }: AuthProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre Completo
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-                style={{ focusRingColor: '#EB9898' }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                 required={!isLogin}
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email / Usuario
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email / Usuario</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-              style={{ focusRingColor: '#EB9898' }}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-                style={{ focusRingColor: '#EB9898' }}
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg"
                 required
               />
               <button
@@ -177,16 +156,13 @@ function Auth({ user, onLogin, onLogout, onBack, onAdminAccess }: AuthProps) {
 
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirmar Contraseña
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar Contraseña</label>
               <input
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition-all"
-                style={{ focusRingColor: '#EB9898' }}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                 required={!isLogin}
               />
             </div>

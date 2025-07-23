@@ -1,15 +1,4 @@
-import React, { useState } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import ProductGrid from './components/ProductGrid';
-import ProductDetail from './components/ProductDetail';
-import Cart from './components/Cart';
-import Auth from './components/Auth';
-import Checkout from './components/Checkout';
-import Admin from './components/Admin';
-import { Product, CartItem, User } from './types';
-
-const INITIAL_PRODUCTS: Product[] = [
+export const i = [
   {
     id: 1,
     name: 'Chocolates',
@@ -69,7 +58,7 @@ const INITIAL_PRODUCTS: Product[] = [
     id: 7,
     name: 'Palmeritas',
     price: 1800,
-    image: 'https://acdn-us.mitiendanube.com/stores/001/203/846/products/palmeritas-tante-sara-online-51-647f455882f20e92b615903013631635-1024-1024.jpg',
+    image: 'https://imag.bonviveur.com/palmeritas-de-hojaldre.jpg',
     category: 'galletas',
     description: 'Crujientes palmeritas de hojaldre',
     rating: 4.4,
@@ -267,130 +256,3 @@ const INITIAL_PRODUCTS: Product[] = [
     stock: 45
   }
 ];
-
-function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin'>('home');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [user, setUser] = useState<User | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setCurrentView('product');
-  };
-
-  const handleAddToCart = (product: Product, quantity: number = 1) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item.product.id === product.id);
-      if (existingItem) {
-        return prev.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [...prev, { product, quantity }];
-    });
-  };
-
-  const handleUpdateCartQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      setCartItems(prev => prev.filter(item => item.product.id !== productId));
-    } else {
-      setCartItems(prev =>
-        prev.map(item =>
-          item.product.id === productId ? { ...item, quantity } : item
-        )
-      );
-    }
-  };
-
-  const handleProductsUpdate = (updatedProducts: Product[]) => {
-    setProducts(updatedProducts);
-  };
-
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  return (
-    <div className="min-h-screen bg-white">
-      <Header 
-        cartItems={totalItems}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onHomeClick={() => setCurrentView('home')}
-        onCartClick={() => setCurrentView('cart')}
-        onProfileClick={() => setCurrentView('auth')}
-        user={user}
-      />
-
-      {currentView === 'home' && (
-        <>
-          <Hero />
-          <ProductGrid 
-            products={filteredProducts}
-            onProductClick={handleProductClick}
-            onCategorySelect={setSelectedCategory}
-            selectedCategory={selectedCategory}
-          />
-        </>
-      )}
-
-      {currentView === 'product' && selectedProduct && (
-        <ProductDetail
-          product={selectedProduct}
-          onAddToCart={handleAddToCart}
-          onBack={() => setCurrentView('home')}
-        />
-      )}
-
-      {currentView === 'cart' && (
-        <Cart
-          items={cartItems}
-          onUpdateQuantity={handleUpdateCartQuantity}
-          onCheckout={() => setCurrentView('checkout')}
-          onBack={() => setCurrentView('home')}
-        />
-      )}
-
-      {currentView === 'auth' && (
-        <Auth
-          user={user}
-          onLogin={setUser}
-          onLogout={() => setUser(null)}
-          onBack={() => setCurrentView('home')}
-          onAdminAccess={() => setCurrentView('admin')}
-        />
-      )}
-
-      {currentView === 'checkout' && (
-        <Checkout
-          items={cartItems}
-          onBack={() => setCurrentView('cart')}
-          onComplete={() => {
-            setCartItems([]);
-            setCurrentView('home');
-          }}
-        />
-      )}
-
-      {currentView === 'admin' && (
-        <Admin
-          products={products}
-          onBack={() => setCurrentView('home')}
-          onProductsUpdate={handleProductsUpdate}
-        />
-      )}
-    </div>
-  );
-}
-
-export default App;
