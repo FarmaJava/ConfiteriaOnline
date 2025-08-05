@@ -318,13 +318,13 @@ function App() {
   };
 
   // ✅ useEffect para redirigir a checkout automáticamente luego de iniciar sesión desde carrito
-  useEffect(() => {
-    if (user && loginFromCart) {
-      setCurrentView('checkout');
-      setLoginFromCart(false);
-      setAuthMessage('');
-    }
-  }, [user, loginFromCart]);
+useEffect(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    setUser(JSON.parse(storedUser)); // 🔥 RECUPERAMOS USER
+  }
+}, []);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -333,7 +333,15 @@ function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onHomeClick={() => setCurrentView('home')}
-        onCartClick={() => setCurrentView('cart')}
+        onCartClick={() => {
+          if (!user) {
+            setAuthMessage('Debes iniciar sesión para ver el carrito');
+            setLoginFromCart(true);
+            setCurrentView('auth');
+          } else {
+            setCurrentView('cart');
+          }
+        }}
         onProfileClick={() => setCurrentView('auth')}
         user={user}
       />
@@ -382,19 +390,21 @@ function App() {
         <Auth
           user={user}
           onLogin={(loggedUser) => {
-  setUser(loggedUser);
+          setUser(loggedUser);
+          localStorage.setItem('user', JSON.stringify(loggedUser)); // 🔥 GUARDAMOS USER
 
-  // Redirige inmediatamente si venía del carrito
-  if (loginFromCart) {
-    setCurrentView('checkout');
-    setLoginFromCart(false);
-    setAuthMessage('');
-  } else {
-    setCurrentView('home');
-  }
-}}
-
-          onLogout={() => setUser(null)}
+          if (loginFromCart) {
+            setCurrentView('checkout');
+            setLoginFromCart(false);
+            setAuthMessage('');
+          } else {
+            setCurrentView('home');
+          }
+        }}
+          onLogout={() => {
+            setUser(null);
+            localStorage.removeItem('user'); // 🔥 ELIMINAMOS USER
+          }}
           onBack={() => {
             setCurrentView('home');
             setLoginFromCart(false);
