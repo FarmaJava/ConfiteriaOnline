@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
@@ -276,13 +276,16 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [afterLoginView, setAfterLoginView] = useState<'checkout' | null>(null);
   const [authMessage, setAuthMessage] = useState('');
-  const [loginFromCart, setLoginFromCart] = React.useState(false);
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setCurrentView('product');
-  };
+  const [loginFromCart, setLoginFromCart] = useState(false);
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleAddToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prev => {
@@ -314,13 +317,14 @@ function App() {
     setProducts(updatedProducts);
   };
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // ✅ useEffect para redirigir a checkout automáticamente luego de iniciar sesión desde carrito
+  useEffect(() => {
+    if (user && loginFromCart) {
+      setCurrentView('checkout');
+      setLoginFromCart(false);
+      setAuthMessage('');
+    }
+  }, [user, loginFromCart]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -337,19 +341,15 @@ function App() {
       {currentView === 'home' && (
         <>
           <Hero />
-            <ProductGrid 
-              products={products.filter(product => {
-              const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-              const matchesCategory = !selectedCategory || product.category === selectedCategory;
-              return matchesSearch && matchesCategory;
-            })}
+          <ProductGrid 
+            products={filteredProducts}
             onProductClick={(product) => {
-              setSelectedProduct(product);        // ✅ guarda el producto
-              setCurrentView('product');          // ✅ cambia a la vista detalle
+              setSelectedProduct(product);
+              setCurrentView('product');
             }}
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
-            />
+          />
         </>
       )}
 
@@ -368,21 +368,38 @@ function App() {
           onCheckout={() => {
             if (!user) {
               setAuthMessage('Debes iniciar sesión para continuar con la compra');
-              setCurrentView('auth'); // te manda al login si no estás logueado
+              setLoginFromCart(true);
+              setCurrentView('auth');
             } else {
-              setCurrentView('checkout'); // sigue normalmente si estás logueado
+              setCurrentView('checkout');
             }
           }}
           onBack={() => setCurrentView('home')}
-          />
+        />
       )}
 
       {currentView === 'auth' && (
         <Auth
           user={user}
-          onLogin={setUser}
+          onLogin={(loggedUser) => {
+  setUser(loggedUser);
+
+  // Redirige inmediatamente si venía del carrito
+  if (loginFromCart) {
+    setCurrentView('checkout');
+    setLoginFromCart(false);
+    setAuthMessage('');
+  } else {
+    setCurrentView('home');
+  }
+}}
+
           onLogout={() => setUser(null)}
-          onBack={() => setCurrentView('home')}
+          onBack={() => {
+            setCurrentView('home');
+            setLoginFromCart(false);
+            setAuthMessage('');
+          }}
           onAdminAccess={() => setCurrentView('admin')}
           message={authMessage}
         />
