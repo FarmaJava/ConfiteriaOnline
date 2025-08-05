@@ -268,6 +268,9 @@ const INITIAL_PRODUCTS: Product[] = [
   }
 ];
 
+// App.tsx
+// Simulamos productos iniciales (pueden ir en otro archivo)
+
 function App() {
   const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin'>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -277,7 +280,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [authMessage, setAuthMessage] = useState('');
-  const [loginFromCart, setLoginFromCart] = useState(false);
+  const [viewBeforeLogin, setViewBeforeLogin] = useState<string | null>(null);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -317,14 +320,12 @@ function App() {
     setProducts(updatedProducts);
   };
 
-  // ✅ useEffect para redirigir a checkout automáticamente luego de iniciar sesión desde carrito
-useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    setUser(JSON.parse(storedUser)); // 🔥 RECUPERAMOS USER
-  }
-}, []);
-
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -336,7 +337,7 @@ useEffect(() => {
         onCartClick={() => {
           if (!user) {
             setAuthMessage('Debes iniciar sesión para ver el carrito');
-            setLoginFromCart(true);
+            setViewBeforeLogin('cart');
             setCurrentView('auth');
           } else {
             setCurrentView('cart');
@@ -374,13 +375,7 @@ useEffect(() => {
           items={cartItems}
           onUpdateQuantity={handleUpdateCartQuantity}
           onCheckout={() => {
-            if (!user) {
-              setAuthMessage('Debes iniciar sesión para continuar con la compra');
-              setLoginFromCart(true);
-              setCurrentView('auth');
-            } else {
-              setCurrentView('checkout');
-            }
+            setCurrentView('checkout');
           }}
           onBack={() => setCurrentView('home')}
         />
@@ -390,24 +385,30 @@ useEffect(() => {
         <Auth
           user={user}
           onLogin={(loggedUser) => {
-          setUser(loggedUser);
-          localStorage.setItem('user', JSON.stringify(loggedUser)); // 🔥 GUARDAMOS USER
+            setUser(loggedUser);
+            localStorage.setItem('user', JSON.stringify(loggedUser));
 
-          if (loginFromCart) {
-            setCurrentView('checkout');
-            setLoginFromCart(false);
+            if (viewBeforeLogin) {
+              setCurrentView(viewBeforeLogin as any);
+              setViewBeforeLogin(null);
+            } else {
+              setCurrentView('home');
+            }
+
             setAuthMessage('');
-          } else {
-            setCurrentView('home');
-          }
-        }}
+          }}
           onLogout={() => {
             setUser(null);
-            localStorage.removeItem('user'); // 🔥 ELIMINAMOS USER
+            localStorage.removeItem('user');
+            setCurrentView('home');
           }}
           onBack={() => {
-            setCurrentView('home');
-            setLoginFromCart(false);
+            if (viewBeforeLogin) {
+              setCurrentView(viewBeforeLogin as any);
+              setViewBeforeLogin(null);
+            } else {
+              setCurrentView('home');
+            }
             setAuthMessage('');
           }}
           onAdminAccess={() => setCurrentView('admin')}
