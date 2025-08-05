@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
@@ -320,12 +320,24 @@ function App() {
     setProducts(updatedProducts);
   };
 
+  // Recupera el user desde localStorage al montar
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  // Manejo del botón carrito
+  const handleCartClick = useCallback(() => {
+    if (!user) {
+      setAuthMessage('Debes iniciar sesión para ver el carrito');
+      setViewBeforeLogin('cart');
+      setCurrentView('auth');
+    } else {
+      setCurrentView('cart');
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -334,15 +346,7 @@ function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onHomeClick={() => setCurrentView('home')}
-        onCartClick={() => {
-          if (!user) {
-            setAuthMessage('Debes iniciar sesión para ver el carrito');
-            setViewBeforeLogin('cart');
-            setCurrentView('auth');
-          } else {
-            setCurrentView('cart');
-          }
-        }}
+        onCartClick={handleCartClick}
         onProfileClick={() => setCurrentView('auth')}
         user={user}
       />
@@ -401,6 +405,7 @@ function App() {
             setUser(null);
             localStorage.removeItem('user');
             setCurrentView('home');
+            setViewBeforeLogin(null);
           }}
           onBack={() => {
             if (viewBeforeLogin) {
