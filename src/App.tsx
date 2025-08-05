@@ -268,8 +268,16 @@ const INITIAL_PRODUCTS: Product[] = [
   }
 ];
 
-// App.tsx
-// Simulamos productos iniciales (pueden ir en otro archivo)
+// Si usás AuthProps, esta es la interfaz que debe tener:
+// (Si la usás en un archivo aparte, mantenela ahí, pero tiene que coincidir con lo que pasás acá)
+export interface AuthProps {
+  user: User | null;
+  onLogin: (user: User) => void;
+  onLogout: () => void;
+  onBack: () => void;
+  onAdminAccess: () => void;
+  message?: string;
+}
 
 function App() {
   const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin'>('home');
@@ -320,7 +328,6 @@ function App() {
     setProducts(updatedProducts);
   };
 
-  // Recupera el user desde localStorage al montar
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -328,8 +335,7 @@ function App() {
     }
   }, []);
 
-  // Manejo del botón carrito
-  const handleCartClick = useCallback(() => {
+  const handleCartClick = () => {
     if (!user) {
       setAuthMessage('Debes iniciar sesión para ver el carrito');
       setViewBeforeLogin('cart');
@@ -337,7 +343,7 @@ function App() {
     } else {
       setCurrentView('cart');
     }
-  }, [user]);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -378,9 +384,7 @@ function App() {
         <Cart
           items={cartItems}
           onUpdateQuantity={handleUpdateCartQuantity}
-          onCheckout={() => {
-            setCurrentView('checkout');
-          }}
+          onCheckout={() => setCurrentView('checkout')}
           onBack={() => setCurrentView('home')}
         />
       )}
@@ -388,24 +392,23 @@ function App() {
       {currentView === 'auth' && (
         <Auth
           user={user}
+          message={authMessage}
           onLogin={(loggedUser) => {
             setUser(loggedUser);
             localStorage.setItem('user', JSON.stringify(loggedUser));
-
+            setAuthMessage('');
             if (viewBeforeLogin) {
               setCurrentView(viewBeforeLogin as any);
               setViewBeforeLogin(null);
             } else {
               setCurrentView('home');
             }
-
-            setAuthMessage('');
           }}
           onLogout={() => {
             setUser(null);
             localStorage.removeItem('user');
-            setCurrentView('home');
             setViewBeforeLogin(null);
+            setCurrentView('home');
           }}
           onBack={() => {
             if (viewBeforeLogin) {
@@ -417,7 +420,6 @@ function App() {
             setAuthMessage('');
           }}
           onAdminAccess={() => setCurrentView('admin')}
-          message={authMessage}
         />
       )}
 

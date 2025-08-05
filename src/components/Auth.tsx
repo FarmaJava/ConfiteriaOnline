@@ -1,15 +1,17 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { useUser } from '../context/UserContext';
+import { User } from '../types'; // Ajustá la ruta según dónde tengas el tipo User
 
 interface AuthProps {
+  user: User | null;
+  onLogin: (user: User) => void;
+  onLogout: () => void;
   onBack: () => void;
   onAdminAccess: () => void;
-  message?: string; // <-- nuevo
+  message?: string;
 }
 
-function Auth({ onBack, onAdminAccess, message }: AuthProps) {
-  const { user, login, logout } = useUser();
+function Auth({ user, onLogin, onLogout, onBack, onAdminAccess, message }: AuthProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ function Auth({ onBack, onAdminAccess, message }: AuthProps) {
     confirmPassword: ''
   });
 
-  // 🔴 VERIFICAMOS SI VIENE DEL CARRITO
+  // Si querés usar esta lógica de sesión desde carrito:
   const [cameFromCart] = useState(() => {
     const flag = sessionStorage.getItem('cameFromCart');
     if (flag) {
@@ -31,9 +33,17 @@ function Auth({ onBack, onAdminAccess, message }: AuthProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validaciones básicas para registro
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
     const isAdmin = formData.email === 'admin@candycrushers.com';
 
-    login({
+    // Simulamos un login sencillo
+    onLogin({
       id: 1,
       name: isAdmin ? 'Administrador' : formData.name || 'Usuario',
       email: formData.email,
@@ -50,7 +60,6 @@ function Auth({ onBack, onAdminAccess, message }: AuthProps) {
 
   if (user) {
     return (
-      
       <div className="max-w-md mx-auto px-4 py-8">
         <button
           onClick={onBack}
@@ -89,7 +98,7 @@ function Auth({ onBack, onAdminAccess, message }: AuthProps) {
             )}
             
             <button
-              onClick={logout}
+              onClick={onLogout}
               className="w-full bg-gray-200 text-gray-800 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300 transition-all duration-300"
             >
               Cerrar Sesión
@@ -119,9 +128,9 @@ function Auth({ onBack, onAdminAccess, message }: AuthProps) {
         </div>
 
         {message && (
-        <div className="mb-4 text-center text-sm font-medium text-red-500">
-        {message}
-        </div>
+          <div className="mb-4 text-center text-sm font-medium text-red-500">
+            {message}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
