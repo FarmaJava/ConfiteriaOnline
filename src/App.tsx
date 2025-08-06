@@ -9,6 +9,7 @@ import Auth from './components/Auth';
 import Checkout from './components/Checkout';
 import Admin from './components/Admin';
 import { Product, CartItem, User } from './types';
+import Footer from './components/Footer'; 
 
 const INITIAL_PRODUCTS: Product[] = [
   {
@@ -450,6 +451,8 @@ function App() {
       {currentView === 'about' && (
         <About onBack={() => setCurrentView('home')} /> // 👈 NUEVO BLOQUE
       )}
+      
+      <Footer />
     </div>
   );
 }
