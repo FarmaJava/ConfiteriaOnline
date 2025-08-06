@@ -1,16 +1,14 @@
+// src/components/FeaturedProducts.tsx
 import React from 'react';
 import { Star, Plus } from 'lucide-react';
 import { Product } from '../types';
 
-interface ProductGridProps {
+interface FeaturedProductsProps {
   products: Product[];
   onProductClick: (product: Product) => void;
-  onCategorySelect: (category: string) => void;
-  selectedCategory: string;
 }
 
 const CATEGORIES = [
-  { id: '', name: 'Todos', color: 'bg-gray-100' },
   { id: 'tortas', name: 'Tortas', color: '#EB9898' },
   { id: 'caramelos', name: 'Caramelos', color: '#D4F663' },
   { id: 'alfajores', name: 'Alfajores', color: '#EB9898' },
@@ -19,41 +17,23 @@ const CATEGORIES = [
   { id: 'chocolates', name: 'Chocolates', color: '#D4F663' }
 ];
 
-function ProductGrid({ products, onProductClick, onCategorySelect, selectedCategory }: ProductGridProps) {
+function FeaturedProducts({ products, onProductClick }: FeaturedProductsProps) {
   const handleAddToCartClick = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    // This will be handled by the parent component through onProductClick
     onProductClick(product);
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      
-
-      {/* Categories Filter */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        {CATEGORIES.map(category => (
-          <button
-            key={category.id}
-            onClick={() => onCategorySelect(category.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${
-              selectedCategory === category.id
-                ? 'text-white shadow-lg transform scale-105'
-                : 'text-gray-700 hover:shadow-md'
-            }`}
-            style={{
-              backgroundColor: selectedCategory === category.id 
-                ? '#EB9898' 
-                : (category.id === '' ? '#f3f4f6' : category.color + '40')
-            }}
-          >
-            {category.name}
-          </button>
-        ))}
+      <div className="text-center mb-12">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4" 
+            style={{ fontFamily: 'Playfair Display, serif', color: '#EB9898' }}>
+          Productos Destacados
+        </h2>
+        <div className="w-24 h-1 mx-auto rounded-full" style={{ backgroundColor: '#D4F663' }}></div>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(product => (
           <div
             key={product.id}
@@ -82,13 +62,13 @@ function ProductGrid({ products, onProductClick, onCategorySelect, selectedCateg
                 </button>
               </div>
             </div>
-            
+
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-800 mb-2" 
                   style={{ fontFamily: 'Poppins, sans-serif' }}>
                 {product.name}
               </h3>
-              
+
               <div className="flex items-center gap-1 mb-2">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -104,7 +84,7 @@ function ProductGrid({ products, onProductClick, onCategorySelect, selectedCateg
                   ({product.reviews})
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold" style={{ color: '#EB9898' }}>
                   ${product.price}
@@ -121,14 +101,8 @@ function ProductGrid({ products, onProductClick, onCategorySelect, selectedCateg
           </div>
         ))}
       </div>
-
-      {products.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No se encontraron productos que coincidan con tu búsqueda.</p>
-        </div>
-      )}
     </div>
   );
 }
 
-export default ProductGrid;
+export default FeaturedProducts;

@@ -10,6 +10,8 @@ import Checkout from './components/Checkout';
 import Admin from './components/Admin';
 import { Product, CartItem, User } from './types';
 import Footer from './components/Footer'; 
+import FeaturedProducts from './components/FeaturedProducts';
+
 
 const INITIAL_PRODUCTS: Product[] = [
   {
@@ -291,6 +293,7 @@ function App() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [authMessage, setAuthMessage] = useState('');
   const [viewBeforeLogin, setViewBeforeLogin] = useState<string | null>(null);
+  const featured = products.slice(0, 3);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -363,6 +366,15 @@ function App() {
       {currentView === 'home' && (
         <>
           <Hero />
+
+          <FeaturedProducts
+            products={featured}
+            onProductClick={(product) => {
+              setSelectedProduct(product);
+              setCurrentView('product');
+            }}
+          />
+
           <ProductGrid 
             products={filteredProducts}
             onProductClick={(product) => {
@@ -451,7 +463,7 @@ function App() {
       {currentView === 'about' && (
         <About onBack={() => setCurrentView('home')} /> // 👈 NUEVO BLOQUE
       )}
-      
+
       <Footer />
     </div>
   );
