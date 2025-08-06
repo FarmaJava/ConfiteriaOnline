@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import About from './components/About'; // 
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
@@ -280,7 +281,7 @@ export interface AuthProps {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin' | 'about'>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -345,7 +346,7 @@ function App() {
     }
   };
 
-  return (
+   return (
     <div className="min-h-screen bg-white">
       <Header 
         cartItems={totalItems}
@@ -354,6 +355,7 @@ function App() {
         onHomeClick={() => setCurrentView('home')}
         onCartClick={handleCartClick}
         onProfileClick={() => setCurrentView('auth')}
+        onAboutClick={() => setCurrentView('about')} // 👈 NUEVO
         user={user}
       />
 
@@ -392,17 +394,18 @@ function App() {
       {currentView === 'auth' && (
         <Auth
           user={user}
-          message={authMessage}
           onLogin={(loggedUser) => {
             setUser(loggedUser);
             localStorage.setItem('user', JSON.stringify(loggedUser));
-            setAuthMessage('');
+
             if (viewBeforeLogin) {
               setCurrentView(viewBeforeLogin as any);
               setViewBeforeLogin(null);
             } else {
               setCurrentView('home');
             }
+
+            setAuthMessage('');
           }}
           onLogout={() => {
             setUser(null);
@@ -411,15 +414,17 @@ function App() {
             setCurrentView('home');
           }}
           onBack={() => {
-            if (viewBeforeLogin) {
+            if (user && viewBeforeLogin) {
               setCurrentView(viewBeforeLogin as any);
-              setViewBeforeLogin(null);
             } else {
               setCurrentView('home');
             }
+
+            setViewBeforeLogin(null);
             setAuthMessage('');
           }}
           onAdminAccess={() => setCurrentView('admin')}
+          message={authMessage}
         />
       )}
 
@@ -440,6 +445,10 @@ function App() {
           onBack={() => setCurrentView('home')}
           onProductsUpdate={handleProductsUpdate}
         />
+      )}
+
+      {currentView === 'about' && (
+        <About onBack={() => setCurrentView('home')} /> // 👈 NUEVO BLOQUE
       )}
     </div>
   );

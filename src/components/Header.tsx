@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, ShoppingCart, User, Search } from 'lucide-react';
+import { Home, ShoppingCart, User, Search, HelpCircle } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
   onHomeClick: () => void;
   onCartClick: () => void;
   onProfileClick: () => void;
+  onAboutClick: () => void; // 👈 nuevo prop
   user: UserType | null;
 }
 
@@ -19,14 +20,23 @@ function Header({
   onHomeClick, 
   onCartClick, 
   onProfileClick,
+  onAboutClick, // 👈 nuevo
   user 
 }: HeaderProps) {
   return (
     <header className="shadow-lg sticky top-0 z-50" style={{ backgroundColor: '#EB9898' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left side - Home and Cart buttons */}
+          {/* Left side - About, Home and Cart buttons */}
           <div className="flex items-center space-x-4">
+            {/* 👇 nuevo botón */}
+            <button
+              onClick={onAboutClick}
+              className="p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
+            >
+              <HelpCircle className="h-5 w-5" style={{ color: '#EB9898' }} />
+            </button>
+
             <button
               onClick={onHomeClick}
               className="p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
@@ -59,7 +69,6 @@ function Header({
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Buscar productos..."
                 className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-full leading-5 bg-white/90 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:border-transparent transition-all duration-200"
-                style={{ focusRingColor: '#EB9898' }}
               />
             </div>
           </div>
