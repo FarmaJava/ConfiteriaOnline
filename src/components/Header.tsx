@@ -1,17 +1,18 @@
 import React from 'react';
-import { Home, ShoppingCart, User, Search, HelpCircle } from 'lucide-react';
+import { Home, ShoppingCart, User, Search, HelpCircle, BarChart3 } from 'lucide-react';
 import { User as UserType } from '../types';
 
-interface HeaderProps {
+type HeaderProps = {
   cartItems: number;
   searchQuery: string;
-  onSearchChange: (query: string) => void;
+  onSearchChange: (value: string) => void;
   onHomeClick: () => void;
   onCartClick: () => void;
   onProfileClick: () => void;
-  onAboutClick: () => void; // 👈 nuevo prop
+  onAboutClick: () => void;
+  onStatsClick: () => void; // 👈 NUEVO
   user: UserType | null;
-}
+};
 
 function Header({ 
   cartItems, 
@@ -20,16 +21,18 @@ function Header({
   onHomeClick, 
   onCartClick, 
   onProfileClick,
-  onAboutClick, // 👈 nuevo
-  user 
+  onAboutClick,
+  onStatsClick,
+  user
 }: HeaderProps) {
   return (
     <header className="shadow-lg sticky top-0 z-50" style={{ backgroundColor: '#EB9898' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left side - About, Home and Cart buttons */}
+          
+          {/* Left side - About, Home, Cart, Stats (solo admin) */}
           <div className="flex items-center space-x-4">
-            {/* 👇 nuevo botón */}
+            {/* Botón About */}
             <button
               onClick={onAboutClick}
               className="p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
@@ -37,24 +40,39 @@ function Header({
               <HelpCircle className="h-5 w-5" style={{ color: '#EB9898' }} />
             </button>
 
+            {/* Botón Home */}
             <button
               onClick={onHomeClick}
               className="p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
             >
               <Home className="h-5 w-5" style={{ color: '#EB9898' }} />
             </button>
-            
+
+            {/* Botón Carrito */}
             <button
               onClick={onCartClick}
               className="relative p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
             >
               <ShoppingCart className="h-5 w-5" style={{ color: '#EB9898' }} />
               {cartItems > 0 && (
-                <span className="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium" style={{ backgroundColor: '#D4F663' }}>
+                <span
+                  className="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                  style={{ backgroundColor: '#D4F663' }}
+                >
                   {cartItems > 99 ? '99+' : cartItems}
                 </span>
               )}
             </button>
+
+            {/* Botón Estadísticas (solo admin) */}
+            {user?.isAdmin && (
+              <button
+                onClick={onStatsClick}
+                className="p-2 rounded-lg bg-white/80 hover:bg-white transition-colors duration-200 shadow-sm"
+              >
+                <BarChart3 className="h-5 w-5" style={{ color: '#EB9898' }} />
+              </button>
+            )}
           </div>
 
           {/* Center - Search bar */}

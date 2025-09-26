@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import About from './components/About'; // 
+import React, { useState, useEffect } from 'react';
+import About from './components/About';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductGrid from './components/ProductGrid';
@@ -8,9 +8,12 @@ import Cart from './components/Cart';
 import Auth from './components/Auth';
 import Checkout from './components/Checkout';
 import Admin from './components/Admin';
+import Statistics from './components/Statistics'; // 👈 nuevo
 import { Product, CartItem, User } from './types';
 import Footer from './components/Footer'; 
 import FeaturedProducts from './components/FeaturedProducts';
+
+
 
 
 const INITIAL_PRODUCTS: Product[] = [
@@ -76,7 +79,7 @@ const INITIAL_PRODUCTS: Product[] = [
     image: 'https://acdn-us.mitiendanube.com/stores/001/203/846/products/palmeritas-tante-sara-online-51-647f455882f20e92b615903013631635-1024-1024.jpg',
     category: 'galletas',
     description: 'Crujientes palmeritas de hojaldre',
-    rating: 4.4,
+    rating: 4.8,
     reviews: 19,
     stock: 50
   },
@@ -284,7 +287,9 @@ export interface AuthProps {
 }
 
 function App() {
-  const [currentView, setCurrentView] = useState<'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin' | 'about'>('home');
+  const [currentView, setCurrentView] = useState<
+    'home' | 'product' | 'cart' | 'auth' | 'checkout' | 'admin' | 'about' | 'stats'
+  >('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -300,6 +305,22 @@ function App() {
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // en App.tsx o en un archivo separado
+const mockUsers: User[] = [
+  { id: 1, name: "Admin", email: "admin@mail.com", isAdmin: true },
+  { id: 2, name: "Juan", email: "juan@mail.com", isAdmin: false },
+  { id: 3, name: "Ana", email: "ana@mail.com", isAdmin: false }
+];
+
+const reviews = [
+  { id: 1, product: "Torta de chocolate", rating: 5, comment: "Muy rica!" },
+  { id: 2, product: "Medialunas", rating: 4, comment: "Buen sabor" },
+  { id: 3, product: "Café", rating: 3, comment: "Un poco frío" },
+];
+
+const visits = 128; // número de visitas de ejemplo
+
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -350,16 +371,17 @@ function App() {
     }
   };
 
-   return (
+  return (
     <div className="min-h-screen bg-white">
-      <Header 
+      <Header
         cartItems={totalItems}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onHomeClick={() => setCurrentView('home')}
         onCartClick={handleCartClick}
         onProfileClick={() => setCurrentView('auth')}
-        onAboutClick={() => setCurrentView('about')} // 👈 NUEVO
+        onAboutClick={() => setCurrentView('about')}
+        onStatsClick={() => setCurrentView('stats')} // 👈 NUEVO
         user={user}
       />
 
@@ -375,7 +397,7 @@ function App() {
             }}
           />
 
-          <ProductGrid 
+          <ProductGrid
             products={filteredProducts}
             onProductClick={(product) => {
               setSelectedProduct(product);
@@ -461,9 +483,18 @@ function App() {
       )}
 
       {currentView === 'about' && (
-        <About onBack={() => setCurrentView('home')} /> // 👈 NUEVO BLOQUE
+        <About onBack={() => setCurrentView('home')} />
       )}
 
+      {currentView === 'stats' && user?.isAdmin && (
+        <Statistics
+          onBack={() => setCurrentView("home")}
+          products={products}
+          cartItems={cartItems}
+          users={mockUsers}
+          visits={visits}
+        />
+      )}
       <Footer />
     </div>
   );
