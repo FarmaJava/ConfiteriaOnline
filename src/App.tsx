@@ -8,13 +8,10 @@ import Cart from './components/Cart';
 import Auth from './components/Auth';
 import Checkout from './components/Checkout';
 import Admin from './components/Admin';
-import Statistics from './components/Statistics'; // 👈 nuevo
+import Statistics from './components/Statistics';
 import { Product, CartItem, User } from './types';
 import Footer from './components/Footer'; 
 import FeaturedProducts from './components/FeaturedProducts';
-
-
-
 
 const INITIAL_PRODUCTS: Product[] = [
   {
@@ -275,8 +272,6 @@ const INITIAL_PRODUCTS: Product[] = [
   }
 ];
 
-// Si usás AuthProps, esta es la interfaz que debe tener:
-// (Si la usás en un archivo aparte, mantenela ahí, pero tiene que coincidir con lo que pasás acá)
 export interface AuthProps {
   user: User | null;
   onLogin: (user: User) => void;
@@ -306,7 +301,7 @@ function App() {
     return matchesSearch && matchesCategory;
   });
 
-  // en App.tsx o en un archivo separado
+
 const mockUsers: User[] = [
   { id: 1, name: "Admin", email: "admin@mail.com", isAdmin: true },
   { id: 2, name: "Juan", email: "juan@mail.com", isAdmin: false },
@@ -320,7 +315,6 @@ const reviews = [
 ];
 
 const visits = 128; // número de visitas de ejemplo
-
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
